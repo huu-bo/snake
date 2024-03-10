@@ -32,6 +32,8 @@ snake = gen_snake()
 move_timer = 0
 MOVE_TIME = 60
 
+score = 0
+
 
 def gen_apple() -> tuple[int, int]:
     board = [[0 for i in range(WORLD_SIZE)] for j in range(WORLD_SIZE)]
@@ -110,11 +112,13 @@ while run:
                 state = State.PLAY
                 apple = gen_apple()
                 snake = gen_snake()
+                last_move_dir = (0, 0)
 
     pygame.draw.rect(screen, (255, 0, 0), (apple[0] * SIZE, apple[1] * SIZE, SIZE, SIZE))
     if apple == snake[-1]:
         apple = gen_apple()
         snake.insert(0, snake[0])
+        score += 1
 
     prev = None
     for part in snake:
@@ -131,8 +135,18 @@ while run:
 
     pygame.draw.circle(screen, (0, 0, 0), (snake[-1][0] * SIZE + SIZE // 2, snake[-1][1] * SIZE + SIZE // 2), SIZE // 3)
 
+    render_score = True
     if state == State.GAME_OVER:
-        screen.blit(font.render('Game over', True, (255, 255, 255)), (min(apple[0] * SIZE, SIZE * (WORLD_SIZE // 3 * 2)), apple[1] * SIZE))
+        pos = (min(apple[0] * SIZE, SIZE * (WORLD_SIZE // 3 * 2)), apple[1] * SIZE)
+        s = 'Game over'
+        if pos[0] < SIZE * 2:
+            s = f'Game over, score: {score}'
+            render_score = False
+        screen.blit(font.render(s, True, (255, 255, 255)),
+                    pos)
+
+    if render_score:
+        screen.blit(font.render(f'{score}', True, (255, 255, 255)), (0, 0))
 
     pygame.display.update()
 
