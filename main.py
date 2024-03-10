@@ -44,6 +44,14 @@ def gen_apple() -> tuple[int, int]:
         for j in range(WORLD_SIZE):
             if board[j][i] == 0:
                 choices.append((i, j))
+
+    for corner in (
+            (0, 0), (WORLD_SIZE - 1, 0),
+            (0, WORLD_SIZE - 1), (WORLD_SIZE - 1, WORLD_SIZE - 1)
+    ):
+        if corner in choices:
+            choices.remove(corner)
+
     return random.choice(choices)
 
 
