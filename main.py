@@ -52,6 +52,9 @@ def gen_apple() -> tuple[int, int]:
         if corner in choices:
             choices.remove(corner)
 
+    if not choices:
+        print('you won')  # TODO: display on-screen
+
     return random.choice(choices)
 
 
@@ -96,6 +99,16 @@ def move(x: int, y: int) -> bool:
     return True
 
 
+def draw_snake_piece(offset: tuple[int, int]) -> None:
+    offset = (
+        offset[0] * (SNAKE_OFFSET * 2),
+        offset[1] * (SNAKE_OFFSET * 2)
+    )
+    pygame.draw.rect(screen, (0, 255, 0),
+                     (part[0] * SIZE + SNAKE_OFFSET + offset[0], part[1] * SIZE + SNAKE_OFFSET + offset[1],
+                      SIZE - SNAKE_OFFSET * 2, SIZE - SNAKE_OFFSET * 2))
+
+
 run = True
 while run:
     clock.tick(60)
@@ -131,17 +144,20 @@ while run:
     prev = None
     for part in snake:
         if prev is not None:
-            offset = ((prev[0] - part[0]) * (SNAKE_OFFSET * 2), (prev[1] - part[1]) * (SNAKE_OFFSET * 2))
-            pygame.draw.rect(screen, (0, 255, 0),
-                             (part[0] * SIZE + SNAKE_OFFSET + offset[0], part[1] * SIZE + SNAKE_OFFSET + offset[1],
-                              SIZE - SNAKE_OFFSET * 2, SIZE - SNAKE_OFFSET * 2))
+            offset = ((prev[0] - part[0]), (prev[1] - part[1]))
+            draw_snake_piece(offset)
 
         pygame.draw.rect(screen, (0, 255, 0),
                          (part[0] * SIZE + SNAKE_OFFSET, part[1] * SIZE + SNAKE_OFFSET,
                           SIZE - SNAKE_OFFSET * 2, SIZE - SNAKE_OFFSET * 2))
         prev = part
 
-    pygame.draw.circle(screen, (0, 0, 0), (snake[-1][0] * SIZE + SIZE // 2, snake[-1][1] * SIZE + SIZE // 2), SIZE // 3)
+    offset_strength = SNAKE_OFFSET // 3
+    if state == State.GAME_OVER:
+        offset_strength = SNAKE_OFFSET
+    offset = (last_move_dir[0] * offset_strength, last_move_dir[1] * offset_strength)
+    pygame.draw.circle(screen, (0, 0, 0),
+                       (snake[-1][0] * SIZE + SIZE // 2 + offset[0], snake[-1][1] * SIZE + SIZE // 2 + offset[1]), SIZE // 3)
 
     render_score = True
     if state == State.GAME_OVER:
