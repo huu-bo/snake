@@ -64,6 +64,14 @@ last_move_dir = (0, 0)
 
 
 def move(x: int, y: int) -> bool:
+    moved = _move(x, y)
+    if moved:
+        global move_timer
+        move_timer = 0
+    return moved
+
+
+def _move(x: int, y: int) -> bool:
     if x != 0 and y != 0:
         raise ValueError
     if x == 0 and y == 0:
@@ -134,6 +142,7 @@ while run:
                 apple = gen_apple()
                 snake = gen_snake()
                 last_move_dir = (0, 0)
+                score = 0
 
     pygame.draw.rect(screen, (255, 0, 0), (apple[0] * SIZE, apple[1] * SIZE, SIZE, SIZE))
     if apple == snake[-1]:
@@ -172,6 +181,10 @@ while run:
     if render_score:
         screen.blit(font.render(f'{score}', True, (255, 255, 255)), (0, 0))
 
+    timer_offset = int(move_timer / MOVE_TIME * 2)
+    pygame.draw.rect(screen, (255, 255, 255),
+                     (0, screen.get_height() - timer_offset, move_timer / MOVE_TIME * screen.get_width(), timer_offset))
+    move_timer += 1
     pygame.display.update()
 
 pygame.quit()
